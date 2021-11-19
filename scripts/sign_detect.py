@@ -89,12 +89,9 @@ def find_mse(arr1, arr2):
 	
 
 def standart_signs():
-	
-	global kp_ideal, des_ideal, sift, counter, flann
-
 	dir_path = os.path.dirname(os.path.realpath(__file__))
-	dir_path = dir_path.replace('myRace/src', 'myRace/')
-	dir_path += 'data_set/detect_sign/'
+	dir_path += '/data_set/'
+	
 	img1 = cv2.imread(dir_path + 'stop.png',0)
 	img2 = cv2.imread(dir_path + 'parking.png',0)
 	img3 = cv2.imread(dir_path + 'tunnel.png',0)    
@@ -108,7 +105,8 @@ def standart_signs():
 	kp_ideal = [kp1,kp2,kp3]
 	des_ideal = [des1,des2,des3]
 	return kp_ideal, des_ideal, sift#, img1
-	
+
+
 if __name__ == '__main__':
 	rospy.init_node('image_projection')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)

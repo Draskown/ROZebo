@@ -4,7 +4,7 @@
 	
 	<node pkg="autoracepy" name="line_detect" type="line_detect.py"/>
 	
-	<node pkg="autoracepy" name="sign_detect" type="sign_detect.py"/>
+	<node pkg="autoracepy" name="sign_detect" type="sign_detect.py" output="screen"/>
 	
 	<node pkg="autoracepy" name="traffic_light_detect" type="traffic_light_detector.py"/>
 	
