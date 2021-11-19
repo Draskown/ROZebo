@@ -1,0 +1,12 @@
+<package>
+  <description brief="autoracepy">
+
+     autoracepy
+
+  </description>
+  <author>root</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/autoracepy</url>
+
+</package>
