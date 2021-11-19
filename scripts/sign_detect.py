@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import rospy
@@ -89,6 +89,9 @@ def find_mse(arr1, arr2):
 	
 
 def standart_signs():
+	
+	global kp_ideal, des_ideal, sift, counter, flann
+
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	dir_path = dir_path.replace('myRace/src', 'myRace/')
 	dir_path += 'data_set/detect_sign/'
