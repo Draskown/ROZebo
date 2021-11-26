@@ -54,7 +54,7 @@ def mask_red(img):
 
 
 if __name__ == '__main__':
-	rospy.init_node('bar_detector')
+	rospy.init_node('bar_detect')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
 	while not rospy.is_shutdown():
 		try:

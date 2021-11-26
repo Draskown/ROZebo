@@ -43,7 +43,7 @@ def do_traffic_light():
 
 
 if __name__ == '__main__':
-	rospy.init_node('traffic_light_controller')
+	rospy.init_node('light_controller')
 	sub_sign = rospy.Subscriber('traffic_light', String, cb_traffic_light, queue_size=1)
 	while not rospy.is_shutdown():
 		try:

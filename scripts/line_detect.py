@@ -14,11 +14,11 @@ pub_error = rospy.Publisher('line_error', Float64, queue_size=1)
 cvBridge = CvBridge()
 
 def cbImageProjection(data):
-	cv_image_original = cvBridge.imgmsg_to_cv2(data, "bgr8")
+	cv_image_original = cvBridge.imgmsg_to_cv2(data, "bgr8")	
 	cv_image_original = cv2.GaussianBlur(cv_image_original, (5, 5), 0)
 	yellow_detect, yellow_array = mask_yellow(cv_image_original)
 	white_detect, white_array = mask_white(cv_image_original)
-	detected = cv2.add(white_detect, yellow_detect)
+	detected = cv2.add(yellow_detect, white_detect)
 	pub_image.publish(cvBridge.cv2_to_imgmsg(detected, "bgr8"))
 	error = Float64()
 	error.data = calculate_error(yellow_array, white_array)
@@ -43,6 +43,7 @@ def mask_yellow(img):
 	# Bitwise-AND mask and original image
 	res = cv2.bitwise_and(img, img, mask = mask)
 	fraction_num = np.count_nonzero(mask)
+	
 	point_arr = []
 	stop_flag = False
 	if fraction_num > 50:
@@ -51,21 +52,22 @@ def mask_yellow(img):
 		for i in range(mask.shape[0]-1,0,-15):
 			if stop_flag == True:
 				break
-			for j in range(0,mask.shape[1],15):
+			for j in range(0, mask.shape[1], 15):
 				if mask[i,j] > 0:
 					point_arr.append([j,i])
 					k+=1
 					if abs(j-jold) > 80 and k > 1:
 						point_arr.pop()
 						stop_flag = True
-				jold = j
-				break
-
+					jold = j
+					break
+		
 		if(len(point_arr) > 0):
 			point_before = point_arr[0]
 			for point in point_arr:
 				res = cv2.line(res, (point[0], point[1]), (point_before[0],point_before[1]), (0,0,255),8)
 				point_before = point
+				
 	return res, point_arr
    
 
@@ -105,7 +107,7 @@ def mask_white(img):
 						stop_flag = True
 					jold = j
 					break
-
+		
 		if len(point_arr) > 0:
 			point_before = point_arr[0]
 			for point in point_arr:
@@ -129,10 +131,10 @@ def calculate_error(yellow_array, white_array):
 	error_yell = error_yell/i
 	for white in white_array:
 		weight = white[1]*0.0017 + 1
-		error_white = weight*(300 - white[0]) + error_white
+		error_white = weight*(320 - white[0]) + error_white
 		i+=1
 	error_white = error_white/i
-	print("white "+ str(error_white) + " yellow "+ str(error_yell))
+	#print("white "+ str(error_white) + " yellow "+ str(error_yell))
 	if error_white < 30:
 		return error_yell
 	elif error_yell < 30:
@@ -142,7 +144,7 @@ def calculate_error(yellow_array, white_array):
 		
 if __name__ == '__main__':
 	rospy.init_node('image_projection')
-	sub_image = rospy.Subscriber('/camera_line', Image, cbImageProjection, queue_size = 1)
+	sub_image = rospy.Subscriber('/camera_line/image', Image, cbImageProjection, queue_size = 1)
 	while not rospy.is_shutdown():
 		try:
 			rospy.sleep(0.1)

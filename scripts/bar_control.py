@@ -41,7 +41,7 @@ def do_stop():
 
 
 if __name__ == '__main__':
-	rospy.init_node('stop_bar')
+	rospy.init_node('bar_control')
 	sub_bar = rospy.Subscriber('bar', Bool, cb_bar, queue_size=1)
 	while not rospy.is_shutdown():
 		try:

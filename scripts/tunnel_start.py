@@ -68,7 +68,7 @@ def in_tunnel_go():
 
 
 if __name__ == '__main__':
-	rospy.init_node('tunnel')
+	rospy.init_node('tunnel_start')
 	sub_sign = rospy.Subscriber('sign', String, cb_sign, queue_size=1)
 	sub_bar = rospy.Subscriber('scan', LaserScan, cb_scan, queue_size=1)
 	while not rospy.is_shutdown():

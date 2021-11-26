@@ -96,7 +96,7 @@ def standart_signs():
 	img2 = cv2.imread(dir_path + 'parking.png',0)
 	img3 = cv2.imread(dir_path + 'tunnel.png',0)    
 	
-	sift = cv2.xfeatures2d.SIFT_create()
+	sift = cv2.SIFT_create()
 	kp1,des1 = sift.detectAndCompute(img1, None)
 	kp2, des2 = sift.detectAndCompute(img2,None)
 	kp3, des3 = sift.detectAndCompute(img3,None)
@@ -108,7 +108,7 @@ def standart_signs():
 
 
 if __name__ == '__main__':
-	rospy.init_node('image_projection')
+	rospy.init_node('sign_detecr')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
 	kp_ideal, des_ideal, sift = standart_signs()
 	while not rospy.is_shutdown():
