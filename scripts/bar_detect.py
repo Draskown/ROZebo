@@ -12,10 +12,20 @@ pub_image = rospy.Publisher('image_bar', Image, queue_size=1)
 pub_bar = rospy.Publisher('bar', Bool, queue_size=1)
 cvBridge = CvBridge()
 counter = 1
+enable = False
+
+
+def cb_tl(data):
+	if data.data == "green":
+		global enable
+		enable = True
 
 
 def cbImageProjection(data):
-
+	
+	if not enable:
+		return
+	
 	global counter
 	if counter % 3 != 0:
 		counter += 1
@@ -48,7 +58,8 @@ def mask_red(img):
 	mask = cv2.inRange(hsv, lower_red, upper_red)
 	mask = cv2.erode(mask, (4,4), iterations = 6) #for detection of big rectangle
 	fraction_num = np.count_nonzero(mask)
-	if fraction_num > 500:
+	
+	if fraction_num > 150:
 		return True, mask
 	else:
 		return False, mask
@@ -57,6 +68,7 @@ def mask_red(img):
 if __name__ == '__main__':
 	rospy.init_node('bar_detect')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
+	sub_tl = rospy.Subscriber('traffic_light', String, cb_tl, queue_size=1)
 	while not rospy.is_shutdown():
 		try:
 			rospy.sleep(0.1)

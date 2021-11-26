@@ -46,10 +46,7 @@ def do_parking():
 	rospy.sleep(0.1)
 	pub_line_move.publish(flag_move_line)    
 	
-	#print("published stop msg")
 	pub_velocity(0, 0, 0.5)
-	
-	#print("published vel")
 	pub_velocity(0, -0.4,4)
 	pub_velocity(0, 0, 0.3)
 	pub_velocity(0.13, 0,2)
@@ -74,13 +71,13 @@ if __name__ == '__main__':
 		try:
 			if(parking == True):
 				print("start parking mission")
-				rospy.sleep(6)
+				rospy.sleep(7)
 				print(distance)
 				if(distance > 1 or distance == 0):
 					do_parking()
 				else:
 					print("place is occupied")
-					rospy.sleep(2)
+					rospy.sleep(1.5)
 					do_parking()
 				break
 		except KeyboardInterrupt:

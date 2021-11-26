@@ -9,6 +9,7 @@ from sensor_msgs.msg import LaserScan
 ranges = list()
 tunnel = False
 in_tunnel = False
+end_of_mission = False
 
 
 def cb_sign(data):
@@ -33,13 +34,8 @@ def pub_velocity(x, z, time):
 
 
 def do_tunnel():
-	pub_line_move = rospy.Publisher('line_move_flag', Bool, queue_size=1)
-	flag_move_line = Bool()
-	flag_move_line.data = False
-	rospy.sleep(3)
-	rospy.sleep(0.1)
-	pub_line_move.publish(flag_move_line)
 	pub_velocity(0.2,0,2)
+	
 	for i in range(20,0, -2):
 		pub_velocity(i/100,0,0.3)
 
@@ -52,10 +48,22 @@ def sign(data):
 
 
 def in_tunnel_go():
-	global ranges
+	if len(ranges) == 0:
+		return
+		
+	if ranges[300] > 0.32:
+		global end_of_mission
+		end_of_mission = True
+		pub_velocity(0.15, 0, 1)
+		
+		for i in range(20,0, -2):
+			pub_velocity(i/100,0,0.3)
+		pub_velocity(0,0,0.1)
+		return
+	
 	vel_x = 0.12
 	vel_z = 0
-	error = 4*(0.23 - ranges[300])
+	error = 4*(0.18 - ranges[300])
 	if(abs(error) > 1.5):
 		error = sign(error)*1.5
 	vel_z = error
@@ -73,12 +81,15 @@ if __name__ == '__main__':
 	sub_bar = rospy.Subscriber('scan', LaserScan, cb_scan, queue_size=1)
 	while not rospy.is_shutdown():
 		try:
-			if(tunnel == True and in_tunnel == False):
-				print("tunnel detected")
-				do_tunnel()
-				in_tunnel = True
-			elif(in_tunnel == True):
-				in_tunnel_go()
+			if not end_of_mission:
+				if(tunnel == True and in_tunnel == False):
+					print("tunnel detected")
+					do_tunnel()
+					in_tunnel = True
+				elif in_tunnel:
+					in_tunnel_go()
+			else:
+				break
 		except KeyboardInterrupt:
 			break
 

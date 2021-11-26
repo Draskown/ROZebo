@@ -28,7 +28,7 @@ def cbImageProjection(data):
 	cv_image_original = cv2.GaussianBlur(cv_image_original, (3, 3), 0)
 	cv_image_gray = cv2.cvtColor(cv_image_original, cv2.COLOR_BGR2GRAY)
 	
-	circles = cv2.HoughCircles(cv_image_gray, cv2.HOUGH_GRADIENT, 1, 50, param2 = 20, minRadius = 8, maxRadius = 15 ) 
+	circles = cv2.HoughCircles(cv_image_gray, cv2.HOUGH_GRADIENT, 1, 50, param2 = 20, minRadius = 5, maxRadius = 15 ) 
 	green_x, green_y  = mask_green(cv_image_original)
 	yellow_x, yellow_y = mask_yellow(cv_image_original)
 	red_x, red_y  = mask_red(cv_image_original)

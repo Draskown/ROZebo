@@ -20,6 +20,7 @@ index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
 search_params = dict(checks = 50)
 flann = cv2.FlannBasedMatcher(index_params, search_params)
 use_signs = False
+sign_msg = String()
 
 
 def cb_tl(data):
@@ -52,7 +53,6 @@ def cbImageProjection(data):
 	for i in range(0,3):
 		matches = flann.knnMatch(des,des_ideal[i],k=2)
 		result = compare_matches(kp, kp_ideal[i], matches)
-		sign_msg = String()
 		if result == True:
 			if i == 0:
 				sign_msg.data = "stop"
@@ -64,7 +64,6 @@ def cbImageProjection(data):
 		else:
 			sign_msg.data = "none"
 			
-	print (sign_msg.data)
 	pub_sign.publish(sign_msg)
 	pub_image.publish(cvBridge.cv2_to_imgmsg(cv_image_original, "rgb8"))
 	
@@ -73,7 +72,6 @@ def compare_matches(kp,kp_ideal,matches):
 	MATCHES_ERR = 50000
 	MATCHES_DIST_MIN = 7
 	
-	# print("matches count: ",len(matches))
 	good = []
 	for m,n in matches:
 		if m.distance < 0.7*n.distance:
@@ -83,9 +81,7 @@ def compare_matches(kp,kp_ideal,matches):
 		src_pts = np.float32([kp[m.queryIdx].pt for m in good])
 		dst_pts = np.float32([kp_ideal[m.trainIdx].pt for m in good])
 	
-		# print("distance matches count: ",len(good))
 		mse_err = find_mse(src_pts,dst_pts)
-		print("mse_err: ", mse_err)
 		
 		if mse_err < MATCHES_ERR:
 			return True
@@ -114,20 +110,23 @@ def standart_signs():
 	kp2, des2 = sift.detectAndCompute(img2,None)
 	kp3, des3 = sift.detectAndCompute(img3,None)
 	
-	# img1 = cv2.drawKeypoints(img1,kp1,None,(255,0,0),4)
 	kp_ideal = [kp1,kp2,kp3]
 	des_ideal = [des1,des2,des3]
 	return kp_ideal, des_ideal, sift#, img1
 
 
 if __name__ == '__main__':
-	rospy.init_node('sign_detecr')
+	rospy.init_node('sign_detect')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
 	sub_tl = rospy.Subscriber('traffic_light', String, cb_tl, queue_size=1)
 	kp_ideal, des_ideal, sift = standart_signs()
 	while not rospy.is_shutdown():
 		try:
-			rospy.sleep(0.1)
+			if sign_msg.data != "tunnel":
+				rospy.sleep(0.1)
+			else:
+				break
+				cv2.destroyAllWindows()
 		except KeyboardInterrupt:
 			break			
-
+			cv2.destroyAllWindows()

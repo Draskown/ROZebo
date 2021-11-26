@@ -18,7 +18,7 @@ def cbImageProjection(data):
 	cv_image_original = cv2.GaussianBlur(cv_image_original, (5, 5), 0)
 	yellow_detect, yellow_array = mask_yellow(cv_image_original)
 	white_detect, white_array = mask_white(cv_image_original)
-	detected = cv2.add(yellow_detect, white_detect)
+	detected = cv2.add(white_detect, yellow_detect)
 	pub_image.publish(cvBridge.cv2_to_imgmsg(detected, "bgr8"))
 	error = Float64()
 	error.data = calculate_error(yellow_array, white_array)
@@ -131,10 +131,10 @@ def calculate_error(yellow_array, white_array):
 	error_yell = error_yell/i
 	for white in white_array:
 		weight = white[1]*0.0017 + 1
-		error_white = weight*(270 - white[0]) + error_white
+		error_white = weight*(290 - white[0]) + error_white
 		i+=1
 	error_white = error_white/i
-	#print("white "+ str(error_white) + " yellow "+ str(error_yell))
+	
 	if error_white < 30:
 		return error_yell
 	elif error_yell < 30:

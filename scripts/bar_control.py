@@ -24,20 +24,23 @@ def pub_velocity(x, z, time):
 
 
 def do_stop():
+	rospy.sleep(1.45)	
+	
 	pub_line_move = rospy.Publisher('line_move_flag', Bool, queue_size=1)
 	flag_move_line = Bool()
 	flag_move_line.data = False
 	rospy.sleep(0.1)
 	pub_line_move.publish(flag_move_line)
 	
-	# pub_velocity(0.2,0,1)
+	pub_velocity(0.2,0,2)
+	
 	for i in range(20,0, -2):
 		pub_velocity(i/100,0,0.2)
 	
-	while stop_bar == True:
-		pub_velocity(0,0,0.1)
-	flag_move_line.data = True
-	pub_line_move.publish(flag_move_line)
+	while stop_bar:
+		pub_velocity(0, 0, 0.1)
+	
+	pub_velocity(0.1,0,2)
 
 
 if __name__ == '__main__':
