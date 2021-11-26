@@ -35,6 +35,9 @@ def do_traffic_light():
 	rospy.sleep(0.1)
 	pub_line_move.publish(flag_move_line)
 	
+	for i in range(10,0, -2):
+		pub_velocity(i/100,0,0.2)
+	
 	print("published stop msg")
 	while( light == True):
 		pub_velocity(0, 0, 0.1)

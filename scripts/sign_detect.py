@@ -19,9 +19,22 @@ FLANN_INDEX_KDTREE = 0
 index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
 search_params = dict(checks = 50)
 flann = cv2.FlannBasedMatcher(index_params, search_params)
+use_signs = False
+
+
+def cb_tl(data):
+	if data.data == "green":
+		
+		global use_signs
+		
+		use_signs = True
+		print('signs are ready')
 
 
 def cbImageProjection(data):
+	if use_signs == False:
+		return
+
 	global kp_ideal, des_ideal, sift, counter, flann
 	
 	# drop the frame to 1/5 (6fps) because of the processing speed
@@ -110,6 +123,7 @@ def standart_signs():
 if __name__ == '__main__':
 	rospy.init_node('sign_detecr')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
+	sub_tl = rospy.Subscriber('traffic_light', String, cb_tl, queue_size=1)
 	kp_ideal, des_ideal, sift = standart_signs()
 	while not rospy.is_shutdown():
 		try:

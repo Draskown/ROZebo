@@ -12,6 +12,7 @@ pub_image = rospy.Publisher('image_traffic_light', Image, queue_size=1)
 pub_traffic_light = rospy.Publisher('traffic_light', String, queue_size=1)
 cvBridge = CvBridge()
 counter = 1
+light_msg = String()
 
 
 def cbImageProjection(data):
@@ -32,7 +33,7 @@ def cbImageProjection(data):
 	yellow_x, yellow_y = mask_yellow(cv_image_original)
 	red_x, red_y  = mask_red(cv_image_original)
 	
-	light_msg = String()
+	global light_msg
 	light_msg.data = "None"
 	
 	if circles is not None:
@@ -147,8 +148,13 @@ if __name__ == '__main__':
 	rospy.init_node('traffic_light_detector')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
 	while not rospy.is_shutdown():
-		try:
-			rospy.sleep(0.1)
-		except KeyboardInterrupt:
-			break
+			try:
+				if light_msg.data != "green":
+					rospy.sleep(0.1)
+				else:
+					break
+					cv2.destroyAllWindows()
+			except KeyboardInterrupt:
+				break
+				cv2.destroyAllWindows()
 

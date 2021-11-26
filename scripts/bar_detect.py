@@ -7,7 +7,7 @@ import cv2
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge
 from time import sleep
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 pub_image = rospy.Publisher('image_bar', Image, queue_size=1)
 pub_bar = rospy.Publisher('bar', Bool, queue_size=1)
 cvBridge = CvBridge()
@@ -15,6 +15,7 @@ counter = 1
 
 
 def cbImageProjection(data):
+
 	global counter
 	if counter % 3 != 0:
 		counter += 1
@@ -39,15 +40,15 @@ def mask_red(img):
 	Lightness_l = 48
 	Lightness_h = 255
 	
-	# define range of yellow color in HSV
+	# define range of red color in HSV
 	lower_red = np.array([Hue_l, Saturation_l, Lightness_l])
 	upper_red = np.array([Hue_h, Saturation_h, Lightness_h])
 	
-	# Threshold the HSV image to get only yellow colors
+	# Threshold the HSV image to get only red colors
 	mask = cv2.inRange(hsv, lower_red, upper_red)
 	mask = cv2.erode(mask, (4,4), iterations = 6) #for detection of big rectangle
 	fraction_num = np.count_nonzero(mask)
-	if fraction_num > 3000:
+	if fraction_num > 500:
 		return True, mask
 	else:
 		return False, mask

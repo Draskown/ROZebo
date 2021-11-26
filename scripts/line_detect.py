@@ -126,12 +126,12 @@ def calculate_error(yellow_array, white_array):
 	for yel in yellow_array:
 	#when yel[2] = 600 then weight = 0 and if yel[2] = 0 wheight = 1
 		weight = yel[1]*0.0017 + 1
-		error_yell = weight*(30 - yel[0]) + error_yell
+		error_yell = weight*(20 - yel[0]) + error_yell
 		i+=1
 	error_yell = error_yell/i
 	for white in white_array:
 		weight = white[1]*0.0017 + 1
-		error_white = weight*(320 - white[0]) + error_white
+		error_white = weight*(270 - white[0]) + error_white
 		i+=1
 	error_white = error_white/i
 	#print("white "+ str(error_white) + " yellow "+ str(error_yell))
