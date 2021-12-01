@@ -1,0 +1,7 @@
+<launch>
+	
+	<node pkg="autoracepy" name="line_move" type="line_move.py" output="screen"/>
+	
+	<node pkg="autoracepy" name="line_detect" type="line_detect.py" output="screen"/>
+
+</launch>
