@@ -1,0 +1,11 @@
+<launch>
+	
+	<node pkg="autoracepy" name="signxlidar" type="signxlidar.py" output="screen"/>
+	
+	<node pkg="autoracepy" name="barxlidar" type="barxlidar.py" output="screen"/>
+	
+	<node pkg="autoracepy" name="tlxlidar" type="tlxlidar.py" output="screen"/>
+	
+	<node pkg="autoracepy" name="xlidarcontrol" type="xlidarcontrol.py" output="screen"/>
+
+</launch>

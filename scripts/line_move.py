@@ -83,6 +83,7 @@ def cbError(error):
 		pubvel(0.0, 0.0)
 	elif key == '\x03':
 		rospy.signal_shutdown('')
+		exit(0)
 		
 	if(move_flag == True):
 		integral = integral + 0.000005*error.data
