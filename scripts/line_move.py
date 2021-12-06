@@ -21,7 +21,6 @@ crunch_position = {'x': -1.828144623628639, 'y': 1.352652814982841}
 crunch_orientation = 0.698
 
 
-
 def pubvel(x, z):
 	velocity.linear.x = x
 	velocity.angular.z = z

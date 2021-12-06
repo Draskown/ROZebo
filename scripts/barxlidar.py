@@ -7,9 +7,9 @@ import cv2
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge
 from time import sleep
-from std_msgs.msg import Bool, String
+from std_msgs.msg import String
 pub_image = rospy.Publisher('image_bar', Image, queue_size=1)
-pub_bar = rospy.Publisher('bar', Bool, queue_size=1)
+pub_bar = rospy.Publisher('bar', String, queue_size=1)
 cvBridge = CvBridge()
 counter = 1
 
@@ -24,8 +24,14 @@ def cbImageProjection(data):
 
 	cv_image_original = cvBridge.imgmsg_to_cv2(data, "bgr8")
 	cv_image_original = cv2.GaussianBlur(cv_image_original, (3, 3), 0)
-	bar_msg = Bool()
-	bar_msg.data, res = mask_red(cv_image_original)
+	bar_msg = String()
+	temp, res = mask_red(cv_image_original)
+	
+	if temp:
+		bar_msg.data = "bar"
+	else:
+		bar_msg.data = "none"
+	
 	pub_bar.publish(bar_msg)
 	pub_image.publish(cvBridge.cv2_to_imgmsg(res, "8UC1"))
 

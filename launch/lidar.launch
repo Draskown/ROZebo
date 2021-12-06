@@ -7,5 +7,7 @@
 	<node pkg="autoracepy" name="tlxlidar" type="tlxlidar.py" output="screen"/>
 	
 	<node pkg="autoracepy" name="xlidarcontrol" type="xlidarcontrol.py" output="screen"/>
+	
+	<node pkg="autoracepy" name="teleop" type="teleop.py" output="screen"/>
 
 </launch>
