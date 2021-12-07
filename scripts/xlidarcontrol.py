@@ -87,9 +87,12 @@ class Xlidarcontrol():
 		closest_ten = 2
 		self.closest = 0.75
 		for i in range (359):
-			if data.ranges[i] < self.closest and (i > 270 or i < 90):
+			if self.sign_text != "tunnel" and data.ranges[i] < self.closest and (i > 270 or i < 90):
 				self.closest = data.ranges[i]
-				self.angle = i
+				if i > 180:
+					self.angle = i-360
+				else:
+					self.angle = i+1
 			elif self.sign_text == "tunnel" and data.ranges[i] < self.closest and (i > 350 or i < 90):
 				self.closest = data.ranges[i]
 				if i > 180:
@@ -201,7 +204,6 @@ if __name__ == '__main__':
 	while not rospy.is_shutdown():
 		try:
 			node.main()
-			rospy.sleep(0.1)
 		except KeyboardInterrupt:
 			break
 			cv2.destroyAllWindows()

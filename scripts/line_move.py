@@ -76,7 +76,7 @@ def cbError(error):
 	if key == 'r':
 		move_flag = True
 		print('The moving has been started\n')
-	elif key == 's':
+	elif key == 'q':
 		print('The moving has been stopped\n')
 		move_flag = False
 		pubvel(0.0, 0.0)
@@ -97,7 +97,7 @@ def cb_flag(data):
 
 
 if __name__ == '__main__':
-	print('\nPress R to start and S to stop\n')
+	print('\nPress R to start and Q to stop\n')
 	
 	if os.name != 'nt':
 		settings = termios.tcgetattr(sys.stdin)
