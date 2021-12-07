@@ -92,15 +92,12 @@ class Xlidarcontrol():
 				self.angle = i
 			elif self.sign_text == "tunnel" and data.ranges[i] < self.closest and (i > 350 or i < 90):
 				self.closest = data.ranges[i]
-				self.angle = i
+				if i > 180:
+					self.angle = i-360
+				else:
+					self.angle = i+1
 			
-			if data.ranges[i] < 2:
-				x = int(data.ranges[i]*np.cos((i + 180)*np.pi/180)*100 + 200)
-				y = int(data.ranges[i]*np.sin((i + 180)*np.pi/180)*100 + 200)
-					
-				self.empty_image[x-1, y-1] = 255
-			
-			'''if i%10 != 0:
+			if i%10 != 0:
 				if data.ranges[i] < closest_ten:
 					closest_ten = data.ranges[i]
 			else:
@@ -109,7 +106,7 @@ class Xlidarcontrol():
 					y = int(closest_ten*np.sin((i + 180)*np.pi/180)*100 + 200)
 				
 					self.empty_image[x, y] = 255
-					closest_ten = 2'''
+					closest_ten = 2
 		
 		self.scan_pub.publish(self.cvBridge.cv2_to_imgmsg(self.empty_image, "8UC1"))
 		self.empty_image = np.zeros(shape=(400, 400), dtype=np.uint8)
