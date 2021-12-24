@@ -141,7 +141,9 @@ def calculate_error(yellow_array, white_array):
 		return error_white
 	else:
 		return (error_white + error_yell)/2
-		
+
+
+
 if __name__ == '__main__':
 	rospy.init_node('image_projection')
 	sub_image = rospy.Subscriber('/camera_line/image', Image, cbImageProjection, queue_size = 1)

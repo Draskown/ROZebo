@@ -3,11 +3,18 @@
 
 import rospy
 from time import sleep
-from std_msgs.msg import Float64, Bool
+from std_msgs.msg import Float64, Bool, String
 from geometry_msgs.msg import Twist
 pub_vel = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 integral = 0
 move_flag = True
+
+
+def cb_ts(data):
+	global move_flag
+
+	if int(data.data) >= 5:
+		move_flag = False
 
 
 def cbError(error):
@@ -31,6 +38,7 @@ if __name__ == '__main__':
 	rospy.init_node('line_control')
 	sub_image = rospy.Subscriber('line_error', Float64, cbError, queue_size=1)
 	sub_move_flag = rospy.Subscriber('line_move_flag', Bool, cb_flag, queue_size=1)
+	sub_ts = rospy.Subscriber('state', String, cb_ts, queue_size=1)
 	while not rospy.is_shutdown():
 		try:
 			rospy.sleep(0.1)

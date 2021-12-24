@@ -47,7 +47,7 @@ def do_parking():
 	pub_line_move.publish(flag_move_line)    
 	
 	pub_velocity(0, 0, 0.5)
-	pub_velocity(0, -0.4,4)
+	pub_velocity(0, -0.4,4.5)
 	pub_velocity(0, 0, 0.3)
 	pub_velocity(0.13, 0,2)
 	pub_velocity(0, 0, 0.3)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 		try:
 			if(parking == True):
 				print("start parking mission")
-				rospy.sleep(7)
+				rospy.sleep(6.3)
 				print(distance)
 				if(distance > 1 or distance == 0):
 					do_parking()

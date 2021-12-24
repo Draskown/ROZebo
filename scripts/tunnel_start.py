@@ -12,6 +12,13 @@ in_tunnel = False
 end_of_mission = False
 
 
+def cb_ts(data):
+	global in_tunnel
+	
+	if data.data == "8":
+		in_tunnel = True
+		
+
 def cb_sign(data):
 	global tunnel
 	if(data.data == "tunnel"):
@@ -31,13 +38,6 @@ def pub_velocity(x, z, time):
 		vel.angular.z = z
 		pub_vel.publish(vel)
 		rospy.sleep(0.1)
-
-
-def do_tunnel():
-	pub_velocity(0.2,0,2)
-	
-	for i in range(20,0, -2):
-		pub_velocity(i/100,0,0.3)
 
 
 def sign(data):
@@ -78,13 +78,14 @@ def in_tunnel_go():
 if __name__ == '__main__':
 	rospy.init_node('tunnel_start')
 	sub_sign = rospy.Subscriber('sign', String, cb_sign, queue_size=1)
-	sub_bar = rospy.Subscriber('scan', LaserScan, cb_scan, queue_size=1)
+	sub_scan = rospy.Subscriber('scan', LaserScan, cb_scan, queue_size=1)
+	sub_ts = rospy.Subscriber('state', String, cb_ts, queue_size=1)
 	while not rospy.is_shutdown():
 		try:
 			if not end_of_mission:
 				if(tunnel == True and in_tunnel == False):
 					print("tunnel detected")
-					do_tunnel()
+					rospy.sleep(2)
 					in_tunnel = True
 				elif in_tunnel:
 					in_tunnel_go()

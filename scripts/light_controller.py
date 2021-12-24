@@ -6,14 +6,23 @@ from time import sleep
 from std_msgs.msg import  String, Bool
 from geometry_msgs.msg import Twist
 light = False
+enabled = False
+
+
+def cb_ts(data):
+	global enabled
+	
+	if int(data.data) == 1 or data.data == "2":
+		enabled = True
 
 
 def cb_traffic_light(data):
 	global light
-	if(data.data == "yellow" or data.data == "red"):
-		light = True
-	elif(data.data == "green"):
-		light = False
+	if enabled:
+		if(data.data == "yellow" or data.data == "red"):
+			light = True
+		elif(data.data == "green"):
+			light = False
 
 
 def pub_velocity(x, z, time):
@@ -48,6 +57,7 @@ def do_traffic_light():
 if __name__ == '__main__':
 	rospy.init_node('light_controller')
 	sub_sign = rospy.Subscriber('traffic_light', String, cb_traffic_light, queue_size=1)
+	sub_state = rospy.Subscriber('state', String, cb_ts, queue_size=1)
 	while not rospy.is_shutdown():
 		try:
 			if(light == True):

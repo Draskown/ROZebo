@@ -15,8 +15,8 @@ counter = 1
 enable = False
 
 
-def cb_tl(data):
-	if data.data == "green":
+def cb_ts(data):
+	if int(data.data) >= 5:
 		global enable
 		enable = True
 
@@ -68,7 +68,7 @@ def mask_red(img):
 if __name__ == '__main__':
 	rospy.init_node('bar_detect')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
-	sub_tl = rospy.Subscriber('traffic_light', String, cb_tl, queue_size=1)
+	sub_tl = rospy.Subscriber('state', String, cb_ts, queue_size=1)
 	while not rospy.is_shutdown():
 		try:
 			rospy.sleep(0.1)

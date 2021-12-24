@@ -23,13 +23,11 @@ use_signs = False
 sign_msg = String()
 
 
-def cb_tl(data):
-	if data.data == "green":
-		
+def cb_ts(data):
+	if int(data.data) >= 4:
 		global use_signs
 		
 		use_signs = True
-		print('signs are ready')
 
 
 def cbImageProjection(data):
@@ -118,7 +116,7 @@ def standart_signs():
 if __name__ == '__main__':
 	rospy.init_node('sign_detect')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
-	sub_tl = rospy.Subscriber('traffic_light', String, cb_tl, queue_size=1)
+	sub_ts = rospy.Subscriber('state', String, cb_ts, queue_size=1)
 	kp_ideal, des_ideal, sift = standart_signs()
 	while not rospy.is_shutdown():
 		try:
