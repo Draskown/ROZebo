@@ -9,10 +9,17 @@ from cv_bridge import CvBridge
 from time import sleep
 from std_msgs.msg import Bool, String
 pub_image = rospy.Publisher('image_bar', Image, queue_size=1)
-pub_bar = rospy.Publisher('bar', Bool, queue_size=1)
+pub_bar = rospy.Publisher('bar', String, queue_size=1)
 cvBridge = CvBridge()
 counter = 1
 enable = False
+
+plan = True
+
+
+def cbPlan(data):
+	global plan
+	plan = data.data
 
 
 def cb_ts(data):
@@ -35,8 +42,14 @@ def cbImageProjection(data):
 
 	cv_image_original = cvBridge.imgmsg_to_cv2(data, "bgr8")
 	cv_image_original = cv2.GaussianBlur(cv_image_original, (3, 3), 0)
-	bar_msg = Bool()
-	bar_msg.data, res = mask_red(cv_image_original)
+	bar_msg = String()
+	temp, res = mask_red(cv_image_original)
+	
+	if temp:
+		bar_msg.data = "bar"
+	else:
+		bar_msg.data = "none"
+	
 	pub_bar.publish(bar_msg)
 	pub_image.publish(cvBridge.cv2_to_imgmsg(res, "8UC1"))
 
@@ -69,9 +82,14 @@ if __name__ == '__main__':
 	rospy.init_node('bar_detect')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
 	sub_tl = rospy.Subscriber('state', String, cb_ts, queue_size=1)
+	sub_plan = rospy.Subscriber('plan', Bool, cbPlan, queue_size = 1)
 	while not rospy.is_shutdown():
 		try:
-			rospy.sleep(0.1)
+			if plan:
+				rospy.sleep(0.1)
+			else:
+				break
+				cv2.destroyAllWindows()
 		except KeyboardInterrupt:
 			break
 			cv2.destroyAllWindows()

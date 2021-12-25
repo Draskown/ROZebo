@@ -2,43 +2,65 @@
 # -*- coding: utf-8 -*-
 
 
+'''
+Traffic light: {0, 0.3}, 0.2
+Parking: {1.60, 1.90}, 1.83
+Bar: {2.95, 3.00}, 2.95
+Tunnel: 3.16
+'''
+
+
 import rospy
 import os
 import time
 import numpy as np
-from nav_msgs.msg import Odometry
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool, Float64
 from geometry_msgs.msg import Pose
 from std_srvs.srv import Empty
 from gazebo_msgs.srv import SpawnModel, DeleteModel
+from nav_msgs.msg import Odometry
 
 
 
 class ControlMission():
 	def __init__(self):
 		self.reset_proxy = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
-		self.sub_odom = rospy.Subscriber('odom', Odometry, self.getOdom, queue_size = 1)
+		sub_odom = rospy.Subscriber('codom', Float64, self.getOdom, queue_size = 1)
+		#sub_odom = rospy.Subscriber('odom', Odometry, self.getOdom, queue_size=1)
+		sub_plan = rospy.Subscriber('plan', Bool, self.cbPlan, queue_size=1)
+		
 		self.pub_state = rospy.Publisher('state', String, queue_size=1)
+		
 		self.rate = rospy.Rate(5)
 		self.initial_pose = Pose()
-		self.traffic_state = 0
+		self.traffic_state = 1
+		self.path = 0.0
+		
+		self.plan = True
+		
 		self.loadMissionModel()
 		self.setTraffic()
 		self.controlMission()
 
-
+	
+	def cbPlan(self, data):
+		self.plan = data.data
+	
+	
 	def getOdom(self, msg):
+		self.path = msg.data
+		
+		if self.path > 2.88 and self.traffic_state == 4:
+			self.traffic_state = 5
+			
+		if abs(self.path - 3.0) < 0.05 and self.traffic_state == 6:
+			self.traffic_state = 7
+			self.current_time = time.time()
+		
+		'''
 		pose_x = msg.pose.pose.position.x
 		pose_y = msg.pose.pose.position.y
 		
-		# traffic light
-		if pose_x > 0.1 and pose_x < 1 and pose_y >-1.88 and pose_y< -1.65 and self.traffic_state == 0:
-			self.traffic_state = 1
-		
-		#tunnel
-		elif pose_x < 0 and pose_y < 0 and (self.traffic_state == 0 or self.traffic_state == 4):
-			self.traffic_state = 8
-
 		# bar
 		elif pose_x > -1.92 and pose_x < -1.72 and pose_y > 0 and pose_y < 1.7 and self.traffic_state == 4:
 			self.traffic_state = 5
@@ -49,7 +71,8 @@ class ControlMission():
 		elif abs(pose_x + 1.75) < 0.15 and pose_y < 1 and self.traffic_state == 6:
 			self.traffic_state = 7
 			self.current_time = time.time()
-
+		'''
+	
 
 	def loadMissionModel(self):
 		model_dir_path = '/root/ros_workspace/src/turtlebot3_autorace/turtlebot3_autorace_core/nodes'
@@ -89,7 +112,7 @@ class ControlMission():
 		spawn_model_prox('up_bar', self.up_bar_model, "robotos_name_space", self.initial_pose, "world")
 		parking_pose = Pose()
 		parking_stop = np.random.rand()
-		parking_pose.position.x = 1.13 if parking_stop < 0.5 else 0.69
+		parking_pose.position.x = 1.14 if parking_stop < 0.5 else 0.69
 		parking_pose.position.y = 1.50
 		parking_pose.position.z = 0.03
 		parking_pose.orientation.x = 0
@@ -101,6 +124,10 @@ class ControlMission():
     
 	def controlMission(self):
 		while not rospy.is_shutdown():
+				if not self.plan:
+					rospy.signal_shutdown('force ending')
+					break
+				
 				if self.traffic_state == 1:  # turn on yellow light
 					rospy.wait_for_service('gazebo/spawn_sdf_model')
 					spawn_model_prox = rospy.ServiceProxy('gazebo/spawn_sdf_model', SpawnModel)
@@ -148,7 +175,8 @@ class ControlMission():
 						self.initial_pose, "world")
 						del_model_prox = rospy.ServiceProxy('gazebo/delete_model', DeleteModel)
 						del_model_prox('down_bar')
-						rospy.signal_shutdown('shutdown')
+						self.traffic_state = 8
+						#rospy.signal_shutdown('shutdown')
 				
 				self.pub_state.publish(str(self.traffic_state))
 				self.rate.sleep()

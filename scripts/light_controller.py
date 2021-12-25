@@ -8,12 +8,19 @@ from geometry_msgs.msg import Twist
 light = False
 enabled = False
 
+plan = True
+
+def cbPlan(data):
+	global plan
+	plan = data.data
+
 
 def cb_ts(data):
 	global enabled
 	
 	if int(data.data) == 1 or data.data == "2":
 		enabled = True
+		
 
 
 def cb_traffic_light(data):
@@ -45,24 +52,29 @@ def do_traffic_light():
 	pub_line_move.publish(flag_move_line)
 	
 	for i in range(5,0, -1):
-		pub_velocity(i/100,0,0.2)
+		pub_velocity(i/100,0,0.1)
 	
 	print("published stop msg")
 	while( light == True):
-		pub_velocity(0, 0, 0.1)
+		pub_velocity(0, -0.05, 0.1)
 	flag_move_line.data = True
 	pub_line_move.publish(flag_move_line)
 
 
 if __name__ == '__main__':
-	rospy.init_node('light_controller')
+	rospy.init_node('light_controller', disable_signals=True)
 	sub_sign = rospy.Subscriber('traffic_light', String, cb_traffic_light, queue_size=1)
 	sub_state = rospy.Subscriber('state', String, cb_ts, queue_size=1)
 	while not rospy.is_shutdown():
 		try:
-			if(light == True):
-				print("start traffic light mission")
-				do_traffic_light()
+			if plan:
+				if(light == True):
+					print("start traffic light mission")
+					do_traffic_light()
+					break
+				else:
+					rospy.sleep(0.1)
+			else:
 				break
 		except KeyboardInterrupt:
 			break

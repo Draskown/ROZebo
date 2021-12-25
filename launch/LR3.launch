@@ -1,5 +1,7 @@
 <launch>
 	
+	<node pkg="autoracepy" name="odometry" type="odom.py" output="screen"/>
+	
 	<node pkg="autoracepy" name="xlidarcontrol" type="xlidarcontrol.py" output="screen"/>
 	
 	<node pkg="autoracepy" name="line_detect" type="line_detect.py"/>

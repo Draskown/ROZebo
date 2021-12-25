@@ -3,7 +3,7 @@
 
 import rospy, cv2, os, select, sys, tty, termios
 import cv2, numpy as np
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from sensor_msgs.msg import Image, LaserScan
 from cv_bridge import CvBridge
 
@@ -24,9 +24,12 @@ class Xlidarcontrol():
 		bar_msg_sub = rospy.Subscriber('bar', String, self.cb_bar, queue_size=1)
 		camera_sub = rospy.Subscriber('camera/image', Image, self.cb_cam, queue_size=1)
 		scan_sub = rospy.Subscriber('scan', LaserScan, self.cb_scan, queue_size=1)
+		plan_sub = rospy.Subscriber('plan', Bool, self.cb_plan, queue_size=1)
 		
 		self.img_pub = rospy.Publisher('decided_img', Image, queue_size=1)
 		self.scan_pub = rospy.Publisher('scan_img', Image, queue_size=1)
+		
+		self.plan = True
 		
 		self.mode = 1
 		self.angle = 0
@@ -38,6 +41,10 @@ class Xlidarcontrol():
 		
 		self.empty_image = np.zeros(shape=(400, 400), dtype=np.uint8)
 
+		
+	def cb_plan(self, plan):
+		self.plan = plan.data
+		
 		
 	def cb_sign(self, sign_name):
 		self.sign_text = sign_name.data
@@ -185,6 +192,10 @@ class Xlidarcontrol():
 	
 	
 	def main(self):
+		if not self.plan:
+			rospy.signal_shutdown('force ending')
+			return
+	
 		key = self.getKey()
 		
 		if key == "\x03":

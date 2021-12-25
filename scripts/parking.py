@@ -9,6 +9,13 @@ from sensor_msgs.msg import LaserScan
 distance = 0
 parking = False
 
+plan = True
+
+
+def cbPlan(data):
+	global plan
+	plan = data.data
+
 
 def cb_sign(data):
 	global parking
@@ -46,17 +53,21 @@ def do_parking():
 	rospy.sleep(0.1)
 	pub_line_move.publish(flag_move_line)    
 	
-	pub_velocity(0, 0, 0.5)
-	pub_velocity(0, -0.4,4.5)
-	pub_velocity(0, 0, 0.3)
-	pub_velocity(0.13, 0,2)
-	pub_velocity(0, 0, 0.3)
-	pub_velocity(0, 0.4,4)
-	pub_velocity(0, 0, 0.5)
-	pub_velocity(0, -0.4,4)
-	pub_velocity(0, 0, 0.3)
-	pub_velocity(-0.13, 0,2)
-	pub_velocity(0, 0, 0.3)
+	for i in range(20,0, -2):
+		pub_velocity(i/100,0,0.1)
+	
+	pub_velocity(0, -0.4,4.3)
+	
+	pub_velocity(0.13, 0, 1.8)
+	
+	for i in range(20,0, -2):
+		pub_velocity(i/100,0,0.1)
+		
+	pub_velocity(-0.13, 0, 1.8)
+	
+	for i in range(20,0, -2):
+		pub_velocity(-i/100,0,0.1)
+	
 	pub_velocity(0, 0.4,4)
 	pub_velocity(0,0,0.5)
 	flag_move_line.data = True
@@ -67,19 +78,23 @@ if __name__ == '__main__':
 	rospy.init_node('parking')
 	sub_sign = rospy.Subscriber('sign', String, cb_sign, queue_size=1)
 	sub_scan = rospy.Subscriber('scan', LaserScan, cb_scan, queue_size=1)
+	sub_plan = rospy.Subscriber('plan', Bool, cbPlan, queue_size = 1)
 	while not rospy.is_shutdown():
 		try:
-			if(parking == True):
-				print("start parking mission")
-				rospy.sleep(6.3)
-				print(distance)
-				if(distance > 1 or distance == 0):
-					do_parking()
-				else:
-					print("place is occupied")
-					rospy.sleep(1.5)
-					do_parking()
-				break
+			if plan:
+				if(parking == True):
+					print("start parking mission")
+					rospy.sleep(6.3)
+					print(distance)
+					if(distance > 1 or distance == 0):
+						do_parking()
+					else:
+						print("place is occupied")
+						rospy.sleep(1.5)
+						do_parking()
+					break
+			else:
+					break
 		except KeyboardInterrupt:
 			break
 

@@ -9,7 +9,7 @@ from cv_bridge import CvBridge
 import math
 import os
 from time import sleep
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 
 pub_image = rospy.Publisher('sign_image', Image, queue_size=1)
 pub_sign = rospy.Publisher('sign', String, queue_size=1)
@@ -21,6 +21,13 @@ search_params = dict(checks = 50)
 flann = cv2.FlannBasedMatcher(index_params, search_params)
 use_signs = False
 sign_msg = String()
+
+plan = True
+
+
+def cbPlan(data):
+	global plan
+	plan = data.data
 
 
 def cb_ts(data):
@@ -117,10 +124,11 @@ if __name__ == '__main__':
 	rospy.init_node('sign_detect')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
 	sub_ts = rospy.Subscriber('state', String, cb_ts, queue_size=1)
+	sub_plan = rospy.Subscriber('plan', Bool, cbPlan, queue_size = 1)
 	kp_ideal, des_ideal, sift = standart_signs()
 	while not rospy.is_shutdown():
 		try:
-			if sign_msg.data != "tunnel":
+			if plan:
 				rospy.sleep(0.1)
 			else:
 				break

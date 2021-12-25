@@ -10,6 +10,14 @@ integral = 0
 move_flag = True
 
 
+plan = True
+
+
+def cbPlan(data):
+	global plan
+	plan = data.data
+
+
 def cb_ts(data):
 	global move_flag
 
@@ -35,13 +43,17 @@ def cb_flag(data):
 
 
 if __name__ == '__main__':
-	rospy.init_node('line_control')
+	rospy.init_node('line_control', disable_signals=True)
 	sub_image = rospy.Subscriber('line_error', Float64, cbError, queue_size=1)
 	sub_move_flag = rospy.Subscriber('line_move_flag', Bool, cb_flag, queue_size=1)
 	sub_ts = rospy.Subscriber('state', String, cb_ts, queue_size=1)
+	sub_plan = rospy.Subscriber('plan', Bool, cbPlan, queue_size = 1)
 	while not rospy.is_shutdown():
 		try:
-			rospy.sleep(0.1)
+			if plan:
+				rospy.sleep(0.1)
+			else:
+				break
 		except KeyboardInterrupt:
 			break
 

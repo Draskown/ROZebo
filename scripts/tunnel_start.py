@@ -11,17 +11,24 @@ tunnel = False
 in_tunnel = False
 end_of_mission = False
 
+plan = True
+state = "1"
+
+def cbPlan(data):
+	global plan
+	plan = data.data
+
 
 def cb_ts(data):
-	global in_tunnel
+	global state
 	
-	if data.data == "8":
-		in_tunnel = True
-		
+	state = data.data
+
 
 def cb_sign(data):
 	global tunnel
-	if(data.data == "tunnel"):
+	
+	if data.data == "tunnel":
 		tunnel = True
 
 
@@ -77,15 +84,17 @@ def in_tunnel_go():
 
 if __name__ == '__main__':
 	rospy.init_node('tunnel_start')
-	sub_sign = rospy.Subscriber('sign', String, cb_sign, queue_size=1)
 	sub_scan = rospy.Subscriber('scan', LaserScan, cb_scan, queue_size=1)
 	sub_ts = rospy.Subscriber('state', String, cb_ts, queue_size=1)
+	sub_plan = rospy.Subscriber('plan', Bool, cbPlan, queue_size = 1)
+	sub_sign = rospy.Subscriber('sign', String, cb_sign, queue_size = 1)
+	
 	while not rospy.is_shutdown():
 		try:
-			if not end_of_mission:
-				if(tunnel == True and in_tunnel == False):
+			if not end_of_mission and plan:				
+				if(tunnel and not in_tunnel):
 					print("tunnel detected")
-					rospy.sleep(2)
+					rospy.sleep(3)
 					in_tunnel = True
 				elif in_tunnel:
 					in_tunnel_go()

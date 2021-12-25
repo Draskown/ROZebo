@@ -7,11 +7,19 @@ import cv2
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge
 from time import sleep
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, Bool
 
 pub_image = rospy.Publisher('image', Image, queue_size=1)
 pub_error = rospy.Publisher('line_error', Float64, queue_size=1)
 cvBridge = CvBridge()
+
+plan = True
+
+
+def cbPlan(data):
+	global plan
+	plan = data.data
+
 
 def cbImageProjection(data):
 	cv_image_original = cvBridge.imgmsg_to_cv2(data, "bgr8")	
@@ -147,9 +155,14 @@ def calculate_error(yellow_array, white_array):
 if __name__ == '__main__':
 	rospy.init_node('image_projection')
 	sub_image = rospy.Subscriber('/camera_line/image', Image, cbImageProjection, queue_size = 1)
+	sub_plan = rospy.Subscriber('plan', Bool, cbPlan, queue_size = 1)
 	while not rospy.is_shutdown():
 		try:
-			rospy.sleep(0.1)
+			if plan:
+				rospy.sleep(0.1)
+			else:
+				break
+				cv2.destroyAllWindows()
 		except KeyboardInterrupt:
 			break
 			cv2.destroyAllWindows()

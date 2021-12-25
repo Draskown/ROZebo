@@ -7,12 +7,20 @@ import cv2
 from sensor_msgs.msg import Image, CompressedImage
 from cv_bridge import CvBridge
 from time import sleep
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 pub_image = rospy.Publisher('image_traffic_light', Image, queue_size=1)
 pub_traffic_light = rospy.Publisher('traffic_light', String, queue_size=1)
 cvBridge = CvBridge()
 counter = 1
 light_msg = String()
+
+
+plan = True
+
+
+def cbPlan(data):
+	global plan
+	plan = data.data
 
 
 def cbImageProjection(data):
@@ -34,12 +42,12 @@ def cbImageProjection(data):
 	red_x, red_y  = mask_red(cv_image_original)
 	
 	global light_msg
-	light_msg.data = "None"
+	light_msg.data = "none"
 	
 	if circles is not None:
 		circles = np.round(circles[0,:]).astype("int")
 		for x,y,r in circles:
-			cv2.circle(cv_image_gray, (x,y),r,(0,255,0), 3)
+			cv2.circle(cv_image_gray, (x,y),r,(0,255,0), 7)
 			green_err = calc_err(green_x, green_y, x, y) 
 			red_err = calc_err(red_x, red_y, x, y)
 			yellow_err =  calc_err(yellow_x, yellow_y, x, y)
@@ -147,9 +155,10 @@ def mask_green(img):
 if __name__ == '__main__':
 	rospy.init_node('traffic_light_detector')
 	sub_image = rospy.Subscriber('/camera/image', Image, cbImageProjection, queue_size=1)
+	sub_plan = rospy.Subscriber('plan', Bool, cbPlan, queue_size = 1)
 	while not rospy.is_shutdown():
 			try:
-				if light_msg.data != "green":
+				if light_msg.data != "green" and plan:
 					rospy.sleep(0.1)
 				else:
 					break
